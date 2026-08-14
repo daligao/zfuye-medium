@@ -48,11 +48,14 @@ ALL_CATS = ["AI副业", "海外接单", "信息差", "被动收入"]
 
 
 # ── 代理配置 ─────────────────────────────────────────────────────────────────
-def get_proxies():
+def proxy_session():
+    """返回一个走Webshare代理的Session（用于抓文章正文）"""
+    s = requests.Session()
     if WEBSHARE_USER:
-        p = f"http://{WEBSHARE_USER}:{WEBSHARE_PASS}@p.webshare.io:80/"
-        return {"http": p, "https": p}
-    return None
+        p = f"http://{WEBSHARE_USER}:{WEBSHARE_PASS}@p.webshare.io:80"
+        s.proxies = {"http": p, "https": p}
+    s.headers.update(HEADERS)
+    return s
 
 
 # ── 日志 ─────────────────────────────────────────────────────────────────────
@@ -70,7 +73,7 @@ def save_log(log):
 # ── 抓取 ──────────────────────────────────────────────────────────────────────
 def fetch_rss(source):
     try:
-        r = requests.get(source["url"], headers=HEADERS, proxies=get_proxies(), timeout=15)
+        r = requests.get(source["url"], headers=HEADERS, timeout=15)  # RSS不需要代理
         root = ET.fromstring(r.content)
         items = root.findall(".//item")
         results = []
@@ -92,7 +95,8 @@ def fetch_rss(source):
 
 def fetch_full_text(url, max_chars=5000):
     try:
-        r = requests.get(url, headers=HEADERS, proxies=get_proxies(), timeout=20)
+        sess = proxy_session()
+        r = sess.get(url, timeout=20)
         r.encoding = r.apparent_encoding or "utf-8"
         html = r.text
         html = re.sub(r'<(script|style)[^>]*>.*?</\1>', '', html, flags=re.S|re.I)

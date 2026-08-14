@@ -47,28 +47,19 @@ SOURCES = [
 ALL_CATS = ["AI副业", "海外接单", "信息差", "被动收入"]
 
 
-# ── 代理抓取（用urllib3 ProxyManager，正确处理CONNECT认证）───────────────────
-import urllib3
-urllib3.disable_warnings()
+# ── 代理抓取（直接用curl，绕过Python的HTTPS隧道认证bug）─────────────────────
+import subprocess
 
-def proxy_get(url, max_chars=5000):
-    """用Webshare代理GET一个页面，返回文本"""
-    if not WEBSHARE_USER:
-        r = requests.get(url, headers=HEADERS, timeout=20)
-        return r.text
-    proxy_auth = urllib3.make_headers(proxy_basic_auth=f"{WEBSHARE_USER}:{WEBSHARE_PASS}")
-    http = urllib3.ProxyManager(
-        "http://p.webshare.io:80/",
-        proxy_headers=proxy_auth,
-        timeout=urllib3.Timeout(connect=10, read=20),
-        num_pools=1,
-    )
-    resp = http.request("GET", url, headers=HEADERS, redirect=True)
-    charset = "utf-8"
-    ct = resp.headers.get("Content-Type", "")
-    if "charset=" in ct:
-        charset = ct.split("charset=")[-1].strip()
-    return resp.data.decode(charset, errors="replace")
+def proxy_get(url):
+    """用curl走Webshare代理抓页面，返回HTML文本"""
+    if WEBSHARE_USER:
+        cmd = ["curl", "-s", "-L", "--max-time", "20",
+               "--proxy", f"http://{WEBSHARE_USER}:{WEBSHARE_PASS}@p.webshare.io:80/",
+               "-A", HEADERS["User-Agent"], url]
+    else:
+        cmd = ["curl", "-s", "-L", "--max-time", "20", "-A", HEADERS["User-Agent"], url]
+    result = subprocess.run(cmd, capture_output=True, timeout=25)
+    return result.stdout.decode("utf-8", errors="replace")
 
 
 # ── 日志 ─────────────────────────────────────────────────────────────────────
@@ -108,11 +99,7 @@ def fetch_rss(source):
 
 def fetch_full_text(url, max_chars=5000):
     try:
-        html_raw = proxy_get(url)
-        class _R:
-            text = html_raw
-        r = _R()
-        html = r.text
+        html = proxy_get(url)
         html = re.sub(r'<(script|style)[^>]*>.*?</\1>', '', html, flags=re.S|re.I)
         text = re.sub(r'<[^>]+>', ' ', html)
         text = unescape(text)

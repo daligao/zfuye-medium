@@ -47,13 +47,27 @@ SOURCES = [
 ALL_CATS = ["AI副业", "海外接单", "信息差", "被动收入"]
 
 
-# ── 代理配置 ─────────────────────────────────────────────────────────────────
+# ── 代理配置（修复requests库的HTTPS隧道407问题）────────────────────────────────
+from requests.adapters import HTTPAdapter
+
+class ProxyAuthAdapter(HTTPAdapter):
+    """强制在HTTPS CONNECT请求里加Proxy-Authorization头"""
+    def proxy_headers(self, proxy):
+        headers = super().proxy_headers(proxy)
+        if WEBSHARE_USER:
+            import base64
+            cred = base64.b64encode(f"{WEBSHARE_USER}:{WEBSHARE_PASS}".encode()).decode()
+            headers["Proxy-Authorization"] = f"Basic {cred}"
+        return headers
+
 def proxy_session():
-    """返回一个走Webshare代理的Session（用于抓文章正文）"""
     s = requests.Session()
     if WEBSHARE_USER:
-        p = f"http://{WEBSHARE_USER}:{WEBSHARE_PASS}@p.webshare.io:80"
+        p = f"http://p.webshare.io:80"
         s.proxies = {"http": p, "https": p}
+        adapter = ProxyAuthAdapter()
+        s.mount("http://", adapter)
+        s.mount("https://", adapter)
     s.headers.update(HEADERS)
     return s
 

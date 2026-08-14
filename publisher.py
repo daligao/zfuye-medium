@@ -47,29 +47,28 @@ SOURCES = [
 ALL_CATS = ["AI副业", "海外接单", "信息差", "被动收入"]
 
 
-# ── 代理配置（修复requests库的HTTPS隧道407问题）────────────────────────────────
-from requests.adapters import HTTPAdapter
+# ── 代理抓取（用urllib3 ProxyManager，正确处理CONNECT认证）───────────────────
+import urllib3
+urllib3.disable_warnings()
 
-class ProxyAuthAdapter(HTTPAdapter):
-    """强制在HTTPS CONNECT请求里加Proxy-Authorization头"""
-    def proxy_headers(self, proxy):
-        headers = super().proxy_headers(proxy)
-        if WEBSHARE_USER:
-            import base64
-            cred = base64.b64encode(f"{WEBSHARE_USER}:{WEBSHARE_PASS}".encode()).decode()
-            headers["Proxy-Authorization"] = f"Basic {cred}"
-        return headers
-
-def proxy_session():
-    s = requests.Session()
-    if WEBSHARE_USER:
-        p = f"http://p.webshare.io:80"
-        s.proxies = {"http": p, "https": p}
-        adapter = ProxyAuthAdapter()
-        s.mount("http://", adapter)
-        s.mount("https://", adapter)
-    s.headers.update(HEADERS)
-    return s
+def proxy_get(url, max_chars=5000):
+    """用Webshare代理GET一个页面，返回文本"""
+    if not WEBSHARE_USER:
+        r = requests.get(url, headers=HEADERS, timeout=20)
+        return r.text
+    proxy_auth = urllib3.make_headers(proxy_basic_auth=f"{WEBSHARE_USER}:{WEBSHARE_PASS}")
+    http = urllib3.ProxyManager(
+        "http://p.webshare.io:80/",
+        proxy_headers=proxy_auth,
+        timeout=urllib3.Timeout(connect=10, read=20),
+        num_pools=1,
+    )
+    resp = http.request("GET", url, headers=HEADERS, redirect=True)
+    charset = "utf-8"
+    ct = resp.headers.get("Content-Type", "")
+    if "charset=" in ct:
+        charset = ct.split("charset=")[-1].strip()
+    return resp.data.decode(charset, errors="replace")
 
 
 # ── 日志 ─────────────────────────────────────────────────────────────────────
@@ -109,9 +108,10 @@ def fetch_rss(source):
 
 def fetch_full_text(url, max_chars=5000):
     try:
-        sess = proxy_session()
-        r = sess.get(url, timeout=20)
-        r.encoding = r.apparent_encoding or "utf-8"
+        html_raw = proxy_get(url)
+        class _R:
+            text = html_raw
+        r = _R()
         html = r.text
         html = re.sub(r'<(script|style)[^>]*>.*?</\1>', '', html, flags=re.S|re.I)
         text = re.sub(r'<[^>]+>', ' ', html)

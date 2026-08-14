@@ -98,16 +98,7 @@ def fetch_rss(source):
 
 
 def fetch_full_text(url, max_chars=5000):
-    try:
-        html = proxy_get(url)
-        html = re.sub(r'<(script|style)[^>]*>.*?</\1>', '', html, flags=re.S|re.I)
-        text = re.sub(r'<[^>]+>', ' ', html)
-        text = unescape(text)
-        text = re.sub(r'\s{2,}', '\n', text).strip()
-        return text[:max_chars]
-    except Exception as e:
-        print(f"  [正文] 抓取失败: {e}")
-        return ""
+    return ""  # Medium/Entrepreneur是SPA，HTML里无正文，用RSS摘要+DeepSeek写作替代
 
 
 # ── 选文章 ────────────────────────────────────────────────────────────────────
@@ -136,21 +127,22 @@ def pick_article(log):
     return None
 
 
-# ── DeepSeek翻译 ──────────────────────────────────────────────────────────────
+# ── DeepSeek写作 ──────────────────────────────────────────────────────────────
 def write_from_source(article, body):
-    prompt = f"""以下是一篇英文资讯：
+    summary = body or article.get("summary", "")
+    prompt = f"""以下是一篇海外文章的标题和摘要：
 标题：{article['title']}
 来源：{article['source']}
-正文内容：{body}
+摘要：{summary}
 原文链接：{article['url']}
 
-【重要】请先判断这篇文章是否适合翻译发布：
+【重要】请先判断这篇文章是否适合发布：
 - 如果内容涉及政治、军事、地缘冲突、政府批评、敏感社会议题，请直接回复"SKIP"
-- 只翻译科技、商业、副业、赚钱、工具、创业类内容
+- 只发布科技、商业、副业、赚钱、工具、创业类内容
 
 如果内容合适，请做三件事：
-1. 把原文内容忠实翻译成中文（保留原文结构和细节，不删减主要内容）
-2. 翻译后加编者点评（2-3句）
+1. 根据标题和摘要，结合你的知识，用中文写一篇800-1200字的深度解读文章（不是翻译，而是把这个话题讲透，加入实际方法和案例）
+2. 文末加编者点评（2-3句你的看法）
 3. 最后加3个FAQ问答，用中国读者会搜索的问题：
 
 <h2>常见问题</h2>
@@ -322,16 +314,16 @@ def main():
     print(f"  来源: {article['source']} [{article['cat']}]")
     print(f"  原标题: {article['title'][:70]}")
 
-    body = fetch_full_text(article["url"])
-    print(f"  [正文] {len(body)} 字符")
-    if len(body) < 500:
-        print("  ⚠️ 正文太短（付费墙未破），跳过")
+    summary = article.get("summary", "")
+    print(f"  [摘要] {len(summary)} 字符")
+    if len(summary) < 30:
+        print("  ⚠️ 摘要太短，跳过")
         log.setdefault("used_urls", []).append(article["url"])
         save_log(log)
         return
 
     title_cn = gen_cn_title(article)
-    content  = write_from_source(article, body)
+    content  = write_from_source(article, "")
     if not content or len(content) < 300:
         print("  ⚠️ 内容不合规或过短，跳过")
         log.setdefault("used_urls", []).append(article["url"])

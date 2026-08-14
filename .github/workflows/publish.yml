@@ -1,0 +1,45 @@
+name: Medium精品文章自动发布
+
+on:
+  schedule:
+    # 每天5篇，错开zfuye-autopilot的时间
+    - cron: '30 1 * * *'
+    - cron: '30 5 * * *'
+    - cron: '30 9 * * *'
+    - cron: '30 15 * * *'
+    - cron: '30 21 * * *'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Publish article
+        env:
+          DEEPSEEK_KEY:  ${{ secrets.DEEPSEEK_KEY }}
+          WP_USER:       ${{ secrets.WP_USER }}
+          WP_APP_PASS:   ${{ secrets.WP_APP_PASS }}
+          WEBSHARE_USER: ${{ secrets.WEBSHARE_USER }}
+          WEBSHARE_PASS: ${{ secrets.WEBSHARE_PASS }}
+        run: python publisher.py
+
+      - name: Save log
+        run: |
+          git config user.name "daligao"
+          git config user.email "daligao@users.noreply.github.com"
+          git add data/log.json
+          git diff --staged --quiet || git commit -m "log: $(date +%Y-%m-%d\ %H:%M)"
+          git pull --rebase origin main
+          git push

@@ -28,7 +28,8 @@
     "https://medium.com/@musausmaniofficial/how-i-automated-90-of-my-daily-work-using-open-source-ai-and-python-86ce6a3553ab?source=rss------artificial_intelligence-5",
     "https://medium.com/@seung-jai.paik/financing-the-loop-dcc67c2fe4f7?source=rss------artificial_intelligence-5",
     "https://medium.com/the-geopolitical-economist/sam-altmans-singularity-is-a-marketing-deadline-8d93117cc2d4?source=rss------artificial_intelligence-5",
-    "https://medium.com/@kursatguzel/who-notices-when-your-ml-model-dies-in-production-drift-detection-auto-retrain-pipeline-713f8cab8ebc?source=rss------artificial_intelligence-5"
+    "https://medium.com/@kursatguzel/who-notices-when-your-ml-model-dies-in-production-drift-detection-auto-retrain-pipeline-713f8cab8ebc?source=rss------artificial_intelligence-5",
+    "https://medium.com/@ayanbuisnessman/10-under-the-radar-ai-image-generators-that-deserve-millions-more-users-df2f607da45b?source=rss------artificial_intelligence-5"
   ],
   "published": [
     {
@@ -174,6 +175,12 @@
       "title": "模型挂了没人知？3步漂移检测自动重训",
       "source": "Medium·AI工具",
       "url": "https://zfuye.org/4092.html"
+    },
+    {
+      "date": "2026-08-20",
+      "title": "10个被严重低估的AI绘图神器",
+      "source": "Medium·AI工具",
+      "url": "https://zfuye.org/4094.html"
     }
   ]
 }

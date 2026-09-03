@@ -330,17 +330,11 @@ def build_faq_schema(content, title):
 
 AD_FOOTER = """
 <hr style="margin:40px 0 24px;border:none;border-top:1px solid #eee">
-<div style="border:2px solid #f0a500;border-radius:10px;background:#fffbf0;padding:20px 24px;font-size:14px;line-height:1.9">
-  <p style="margin:0 0 4px;font-size:13px;color:#c47f00;font-weight:bold;letter-spacing:1px">🏷️ 限时推荐</p>
-  <p style="margin:0 0 12px;font-weight:bold;font-size:16px;color:#333">📌 关于本站</p>
-  <p style="margin:0 0 14px;color:#555">内容翻译自海外科技媒体，仅供个人学习参考。</p>
-  <p style="margin:0 0 8px;font-weight:bold;color:#333">🛠️ 站长的同款工具</p>
-  <ul style="margin:0 0 16px;padding-left:20px;color:#555">
-    <li>主机：<a href="https://zfuye.org/3528.html" target="_blank" rel="nofollow" style="color:#c47f00;font-weight:bold">Hostinger</a>（$2.99/月起）</li>
-    <li>域名：<a href="https://www.namecheap.com" target="_blank" rel="nofollow" style="color:#c47f00;font-weight:bold">Namecheap</a></li>
-    <li>AI工具：GitHub Copilot（<a href="https://zfuye.org/3528.html" target="_blank" rel="nofollow" style="color:#c47f00;font-weight:bold">操作方法：在这里</a>）</li>
-  </ul>
-  <p style="margin:0;color:#c47f00;font-weight:bold">你也可以做一台自动赚钱的网站机器 🚀</p>
+<div style="border:2px solid #673de6;border-radius:10px;background:#faf7ff;padding:20px 24px;font-size:14px;line-height:1.9">
+  <p style="margin:0 0 4px;font-size:13px;color:#5b21b6;font-weight:bold;letter-spacing:1px">🛠️ 站长同款工具</p>
+  <p style="margin:0 0 10px;font-weight:bold;font-size:16px;color:#333">想做自己的副业网站？</p>
+  <p style="margin:0 0 14px;color:#555">本站用的就是 Hostinger，$2.99/月起，支持支付宝/微信付款，含免费域名，一键装WordPress，新手30分钟能上线。</p>
+  <a href="https://www.hostinger.com?REFERRALCODE=I14LOVE09WMZ" target="_blank" rel="nofollow" style="display:inline-block;background:#673de6;color:#fff;font-weight:bold;padding:10px 22px;border-radius:8px;text-decoration:none;font-size:14px">👉 去 Hostinger 建站</a>
 </div>"""
 
 

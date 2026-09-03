@@ -301,10 +301,28 @@ def update_post(post_id, raw_content):
     except: pass
 
 
+# ── WP连通性检查（先验证，避免DeepSeek白调）─────────────────────────────────
+def check_wp_auth():
+    cred = b64encode(f"{WP_USER}:{WP_APP_PASS}".encode()).decode()
+    try:
+        r = requests.get(f"{WP_BASE}/users/me",
+                         headers={"Authorization": f"Basic {cred}"}, timeout=10)
+        if r.status_code == 200:
+            return True
+        print(f"  [WP] 认证失败 {r.status_code}，跳过本次（避免浪费DeepSeek token）")
+        return False
+    except Exception as e:
+        print(f"  [WP] 连接失败: {e}，跳过本次")
+        return False
+
+
 # ── 主流程 ────────────────────────────────────────────────────────────────────
 def main():
     print(f"📰 zfuye-medium — {TODAY} UTC+{HOUR_U}h")
     log = load_log()
+
+    if not check_wp_auth():
+        return
 
     article = pick_article(log)
     if not article:
@@ -354,3 +372,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

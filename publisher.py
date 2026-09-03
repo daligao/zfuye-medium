@@ -330,11 +330,11 @@ def build_faq_schema(content, title):
 
 AD_FOOTER = """
 <hr style="margin:40px 0 24px;border:none;border-top:1px solid #eee">
-<div style="border:2px solid #673de6;border-radius:10px;background:#faf7ff;padding:20px 24px;font-size:14px;line-height:1.9">
-  <p style="margin:0 0 4px;font-size:13px;color:#5b21b6;font-weight:bold;letter-spacing:1px">🛠️ 站长同款工具</p>
-  <p style="margin:0 0 10px;font-weight:bold;font-size:16px;color:#333">想做自己的副业网站？</p>
-  <p style="margin:0 0 14px;color:#555">本站用的就是 Hostinger，$2.99/月起，支持支付宝/微信付款，含免费域名，一键装WordPress，新手30分钟能上线。</p>
-  <a href="https://www.hostinger.com?REFERRALCODE=I14LOVE09WMZ" target="_blank" rel="nofollow" style="display:inline-block;background:#673de6;color:#fff;font-weight:bold;padding:10px 22px;border-radius:8px;text-decoration:none;font-size:14px">👉 去 Hostinger 建站</a>
+<div style="border:2px solid #673de6;border-radius:10px;background:#faf7ff;padding:20px 24px;font-size:14px;line-height:1.8">
+  <p style="margin:0 0 4px;font-size:12px;color:#5b21b6;font-weight:bold;letter-spacing:1px">🛠️ 站长亲测</p>
+  <p style="margin:0 0 10px;font-weight:bold;font-size:16px;color:#333">我靠 Hostinger 联盟把主机费赚回来了</p>
+  <p style="margin:0 0 16px;color:#555">$2.99/月，支持支付宝付款，含免费域名，一键装WordPress。我是怎么建站+靠联盟回本的？看这篇：</p>
+  <a href="https://zfuye.org/3528.html" style="display:inline-block;background:#673de6;color:#fff;font-weight:bold;padding:10px 22px;border-radius:8px;text-decoration:none;font-size:14px">👉 看建站真实经历（含付款截图）</a>
 </div>"""
 
 

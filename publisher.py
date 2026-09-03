@@ -10,6 +10,8 @@ from base64 import b64encode
 from urllib.parse import urlparse
 
 DEEPSEEK_KEY  = os.environ.get("DEEPSEEK_KEY", "")
+ALIYUN_KEY    = os.environ.get("ALIYUN_KEY", "")
+ALIYUN_BASE   = "https://llm-8yhqvemunmnpoeoj.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"
 WP_USER       = os.environ.get("WP_USER", "")
 WP_APP_PASS   = os.environ.get("WP_APP_PASS", "")
 WEBSHARE_USER = os.environ.get("WEBSHARE_USER", "")
@@ -209,6 +211,29 @@ def gen_cn_title(article):
         return article["title"]
 
 
+# ── 阿里云生成 meta description ───────────────────────────────────────────────
+def gen_excerpt(title_cn, content):
+    plain = re.sub(r'<[^>]+>', '', content)[:400].strip()
+    if not ALIYUN_KEY:
+        return plain[:80]
+    try:
+        r = requests.post(
+            f"{ALIYUN_BASE}/chat/completions",
+            headers={"Authorization": f"Bearer {ALIYUN_KEY}", "Content-Type": "application/json"},
+            json={"model": "qwen-turbo",
+                  "messages": [{"role": "user", "content":
+                      f"根据以下文章标题和开头，写一句60-80字的中文SEO摘要，吸引点击，不加引号，直接输出：\n标题：{title_cn}\n内容：{plain}"}],
+                  "max_tokens": 120, "temperature": 0.5},
+            timeout=20,
+        )
+        excerpt = r.json()["choices"][0]["message"]["content"].strip()
+        print(f"  [摘要] {excerpt[:50]}…")
+        return excerpt
+    except Exception as e:
+        print(f"  [摘要] 阿里云失败({e})，用纯文本截取")
+        return plain[:80]
+
+
 # ── WordPress发布 ─────────────────────────────────────────────────────────────
 def get_or_create_category(name, auth_h):
     try:
@@ -269,12 +294,12 @@ AD_FOOTER = """
 </div>"""
 
 
-def publish_post(title_cn, raw_content, article):
+def publish_post(title_cn, raw_content, article, excerpt=""):
     cred   = b64encode(f"{WP_USER}:{WP_APP_PASS}".encode()).decode()
     auth_h = {"Authorization": f"Basic {cred}"}
     cat_id = get_or_create_category(article["cat"], auth_h)
     payload = {"title": {"raw": title_cn}, "content": {"raw": raw_content},
-               "status": "publish", "format": "standard"}
+               "excerpt": {"raw": excerpt}, "status": "publish", "format": "standard"}
     if cat_id:
         payload["categories"] = [cat_id]
     try:
@@ -349,7 +374,8 @@ def main():
         return
 
     content += AD_FOOTER
-    post_id, link = publish_post(title_cn, content, article)
+    excerpt  = gen_excerpt(title_cn, content)
+    post_id, link = publish_post(title_cn, content, article, excerpt)
 
     if post_id and link:
         cred   = b64encode(f"{WP_USER}:{WP_APP_PASS}".encode()).decode()

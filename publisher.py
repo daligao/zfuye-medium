@@ -196,6 +196,25 @@ def write_from_source(article, body):
         return None
 
 
+def gen_slug(title_cn):
+    """把中文标题转成拼音slug，给Bing看URL关键词"""
+    try:
+        r = requests.post(
+            "https://api.deepseek.com/chat/completions",
+            headers={"Authorization": f"Bearer {DEEPSEEK_KEY}", "Content-Type": "application/json"},
+            json={"model": "deepseek-v4-flash",
+                  "messages": [{"role": "user", "content":
+                      f"把这个中文标题转成URL slug：小写拼音，词之间用-连接，最多6个词，不含标点和数字以外字符，只输出slug：\n{title_cn}"}],
+                  "max_tokens": 40, "temperature": 0.2},
+            timeout=30,
+        )
+        slug = r.json()["choices"][0]["message"]["content"].strip().lower()
+        slug = re.sub(r'[^a-z0-9-]', '', slug)[:60]
+        return slug if len(slug) > 4 else ""
+    except:
+        return ""
+
+
 def gen_cn_title(article):
     cat = article.get("cat", "")
     if cat in ("AI副业", "被动收入", "信息差"):
@@ -325,12 +344,13 @@ AD_FOOTER = """
 </div>"""
 
 
-def publish_post(title_cn, raw_content, article, excerpt=""):
+def publish_post(title_cn, raw_content, article, excerpt="", slug=""):
     cred   = b64encode(f"{WP_USER}:{WP_APP_PASS}".encode()).decode()
     auth_h = {"Authorization": f"Basic {cred}"}
     cat_id = get_or_create_category(article["cat"], auth_h)
     payload = {"title": {"raw": title_cn}, "content": {"raw": raw_content},
-               "excerpt": {"raw": excerpt}, "status": "publish", "format": "standard"}
+               "excerpt": {"raw": excerpt}, "status": "publish", "format": "standard",
+               "slug": slug or None}
     if cat_id:
         payload["categories"] = [cat_id]
     try:
@@ -397,6 +417,7 @@ def main():
         return
 
     title_cn = gen_cn_title(article)
+    slug     = gen_slug(title_cn)
     content  = write_from_source(article, "")
     if not content or len(content) < 300:
         print("  ⚠️ 内容不合规或过短，跳过")
@@ -406,7 +427,7 @@ def main():
 
     content += AD_FOOTER
     excerpt  = gen_excerpt(title_cn, content)
-    post_id, link = publish_post(title_cn, content, article, excerpt)
+    post_id, link = publish_post(title_cn, content, article, excerpt, slug)
 
     if post_id and link:
         cred   = b64encode(f"{WP_USER}:{WP_APP_PASS}".encode()).decode()

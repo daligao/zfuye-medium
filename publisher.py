@@ -142,10 +142,14 @@ def write_from_source(article, body):
 - 如果内容涉及政治、军事、地缘冲突、政府批评、敏感社会议题，请直接回复"SKIP"
 - 只发布科技、商业、副业、赚钱、工具、创业类内容
 
-如果内容合适，请做三件事：
+如果内容合适，请做四件事：
 1. 根据标题和摘要，结合你的知识，用中文写一篇800-1200字的深度解读文章（不是翻译，而是把这个话题讲透，加入实际方法和案例）
-2. 文末加编者点评（2-3句你的看法）
-3. 最后加3个FAQ问答，用中国读者会搜索的问题：
+2. 文末加"站长亲测"模块：以第一人称写3-5句真实感受，必须包含：
+   - 具体数字（时间/金额/次数，哪怕是估算）
+   - 至少一个踩坑或没想到的点
+   - 一句给读者的实操建议
+3. 加编者点评（2-3句）
+4. 最后加3个FAQ问答，用中国读者会搜索的问题：
 
 <h2>常见问题</h2>
 <h3>Q：[问题]</h3>
@@ -156,6 +160,11 @@ def write_from_source(article, body):
 - HTML格式，用<h2><p><ul><li>
 - 不要写文章大标题
 - 不要```html代码块标记
+- 站长亲测模块格式：
+<div style="background:#f0f7ff;border-left:4px solid #3b82f6;padding:16px 20px;margin:28px 0;border-radius:0 8px 8px 0">
+<p style="margin:0 0 8px;font-weight:bold;color:#1d4ed8">🧪 站长亲测</p>
+<p style="margin:0;color:#374151;line-height:1.8">[内容]</p>
+</div>
 - 编者按：<blockquote style="border-left:3px solid #f0a500;padding:12px 16px;margin:24px 0;background:#fffbf0;color:#555">[点评]</blockquote>
 - 结尾：<p style="color:#999;font-size:13px">资讯来源：{article['source']}</p>"""
 
